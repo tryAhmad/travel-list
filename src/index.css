@@ -79,6 +79,7 @@ input {
   flex-direction: column;
   gap: 3.2rem;
   align-items: center;
+  max-height: 51.8vh;
 }
 
 .actions button,
@@ -93,7 +94,7 @@ input {
 .list ul {
   list-style: none;
   width: 80%;
-  overflow: hidden;
+  overflow:scroll;
 
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -128,4 +129,9 @@ input[type="checkbox"] {
   text-align: center;
   font-weight: 700;
   padding: 3.2rem 0;
+  height: 15vh;
+}
+
+.list ul::-webkit-scrollbar {
+  display: none;
 }

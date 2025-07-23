@@ -1,18 +1,34 @@
 import React, { useState } from "react";
 
-const initialItems = [
-  { id: 1, description: "Passports", quantity: 2, packed: false },
-  { id: 2, description: "Socks", quantity: 12, packed: true },
-  { id: 3, description: "Shoes", quantity: 10, packed: true },
-];
-
 const App = () => {
+  const [items, setItems] = useState([]);
+
+  const handleAddItems = (newItem) => {
+    setItems((items) => [...items, newItem]);
+  };
+
+  const handleDeleteItem = (id) => {
+    setItems((items) => items.filter((item) => item.id !== id));
+  };
+
+  const handleToggleItem = (id) => {
+    setItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : item
+      )
+    );
+  };
+
   return (
     <div className="app">
       <Logo />
-      <Form />
-      <PackingList />
-      <Stats />
+      <Form onAddItems={handleAddItems} />
+      <PackingList
+        items={items}
+        onDeleteItem={handleDeleteItem}
+        onToggleItem={handleToggleItem}
+      />
+      <Stats items={items} />
     </div>
   );
 };
@@ -21,7 +37,7 @@ const Logo = () => {
   return <h1>🏝️ Far Away 💼</h1>;
 };
 
-const Form = () => {
+const Form = ({ onAddItems }) => {
   const [description, setDescription] = useState("");
   const [quantity, setQuantity] = useState(1);
   const handleSubmit = (event) => {
@@ -36,6 +52,8 @@ const Form = () => {
       quantity,
       packed: false,
     };
+
+    onAddItems(newItem);
 
     console.log(newItem);
     setDescription("");
@@ -65,35 +83,53 @@ const Form = () => {
   );
 };
 
-const PackingList = () => {
+const PackingList = ({ items, onDeleteItem, onToggleItem }) => {
   return (
     <div className="list">
       <ul>
-        {initialItems.map((item) => (
-          <Item item={item} key={item.id} />
+        {items.map((item) => (
+          <Item
+            item={item}
+            key={item.id}
+            onDeleteItem={onDeleteItem}
+            onToggleItem={onToggleItem}
+          />
         ))}
       </ul>
     </div>
   );
 };
 
-const Item = ({ item }) => {
+const Item = ({ item, onDeleteItem, onToggleItem }) => {
   return (
     <li>
+      <input
+        type="checkbox"
+        value={item.packed}
+        onChange={() => onToggleItem(item.id)}
+      />
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
         {item.quantity} {item.description}
       </span>
-      <button>❌</button>
+      <button onClick={() => onDeleteItem(item.id)}>❌</button>
     </li>
   );
 };
-const Stats = () => {
+const Stats = ({ items }) => {
+  if (!items.length) return <footer className="stats">No items yet 🤔</footer>;
+
+  const numItems = items.length;
+  const packedItems = items.filter((item) => item.packed).length;
+  const percent = Math.round((packedItems / numItems) * 100);
   return (
-    <div className="stats">
-      <p>Total items: 0</p>
-      <p>Packed items: 0%</p>
-    </div>
+    <footer className="stats">
+      {percent === 100 ? (<p>Everything Packed. Let's Go.</p>) :
+      <em>
+        <p>Total items: {numItems}</p>
+        <p>Packed items: {percent}%</p>
+      </em>}
+    </footer>
   );
-};
+}; 
 
 export default App;
